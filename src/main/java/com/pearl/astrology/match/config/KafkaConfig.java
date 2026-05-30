@@ -31,4 +31,20 @@ public class KafkaConfig {
                 .replicas(1)
                 .build();
     }
+
+    @Bean
+    public NewTopic profileCompletedTopic() {
+        return TopicBuilder.name("profile-completed")
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
+    @Bean
+    public NewTopic profileCompletedDltTopic() {
+        return TopicBuilder.name("profile-completed.DLT")
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
 }

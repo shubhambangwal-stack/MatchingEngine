@@ -3,6 +3,7 @@ package com.pearl.astrology.match.kafka;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pearl.astrology.match.entity.DailyMatchQueue;
 import com.pearl.astrology.match.repository.DailyMatchQueueRepository;
+import com.pearl.astrology.match.service.MatchGenerationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -17,9 +18,10 @@ public class UserCreatedConsumer {
 
     private final DailyMatchQueueRepository queueRepository;
     private final ObjectMapper objectMapper;
+    private final MatchGenerationService matchGenerationService;
 
     @KafkaListener(
-            topics = "user-created", 
+            topics = "user-created",
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )
@@ -65,9 +67,18 @@ public class UserCreatedConsumer {
             } else {
                 log.warn("User {} already in queue for today", userId);
             }
+
+            // Trigger real-time match generation asynchronously.
+            // This runs in a separate thread pool so the Kafka consumer
+            // thread is not blocked. Failure here is non-fatal — the
+            // daily batch job acts as a fallback.
+            matchGenerationService.generateMatchesAsync(userId);
+            log.info("Real-time match generation triggered for user {}", userId);
+
         } catch (Exception e) {
             log.error("Failed to process user-created event: {}", message, e);
             throw new RuntimeException("Error processing user-created event, triggering retry/DLQ", e);
         }
     }
 }
+

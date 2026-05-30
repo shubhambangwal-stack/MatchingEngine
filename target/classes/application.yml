@@ -44,7 +44,7 @@ logging:
 
 match:
   scoring:
-    cron: "0 25 12 * * *" # Run at 11:25 AM daily
+    cron: "0 07 12 * * *" # Run at 11:25 AM daily
     chunk-size: 50
     core-pool-size: 4
     max-pool-size: 8

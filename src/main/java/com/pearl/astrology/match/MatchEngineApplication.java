@@ -1,4 +1,4 @@
-package com.pearl.astrology.match;
+   package com.pearl.astrology.match;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

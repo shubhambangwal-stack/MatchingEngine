@@ -3,6 +3,7 @@ package com.pearl.astrology.match.kafka;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pearl.astrology.match.entity.DailyMatchQueue;
 import com.pearl.astrology.match.repository.DailyMatchQueueRepository;
+import com.pearl.astrology.match.service.MatchGenerationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +25,9 @@ public class UserCreatedConsumerTest {
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @Mock
+    private MatchGenerationService matchGenerationService;
+
     @InjectMocks
     private UserCreatedConsumer consumer;
 
@@ -37,6 +41,8 @@ public class UserCreatedConsumerTest {
         verify(queueRepository, times(1)).save(argThat(item -> 
             "user_abc".equals(item.getUserId()) && !item.isProcessed()
         ));
+        // Verify real-time match generation was triggered
+        verify(matchGenerationService, times(1)).generateMatchesAsync("user_abc");
     }
 
     @Test
@@ -49,16 +55,20 @@ public class UserCreatedConsumerTest {
         verify(queueRepository, times(1)).save(argThat(item -> 
             "user_abc".equals(item.getUserId()) && !item.isProcessed()
         ));
+        verify(matchGenerationService, times(1)).generateMatchesAsync("user_abc");
     }
 
     @Test
-    public void testConsumeDuplicateDoesNotSave() {
+    public void testConsumeDuplicateDoesNotSaveButStillTriggersMatchGeneration() {
         String rawMessage = "{\"_id\":\"user_abc\",\"gender\":\"Male\"}";
         when(queueRepository.existsByUserIdAndQueueDate("user_abc", LocalDate.now())).thenReturn(true);
 
         consumer.consumeUserCreated(rawMessage);
 
         verify(queueRepository, never()).save(any(DailyMatchQueue.class));
+        // Even if already queued, match generation should still be triggered
+        // (handles the case where user-created fires again after a profile update)
+        verify(matchGenerationService, times(1)).generateMatchesAsync("user_abc");
     }
 
     @Test
@@ -70,6 +80,7 @@ public class UserCreatedConsumerTest {
         });
 
         verify(queueRepository, never()).save(any(DailyMatchQueue.class));
+        verify(matchGenerationService, never()).generateMatchesAsync(any());
     }
 
     @Test
@@ -81,5 +92,6 @@ public class UserCreatedConsumerTest {
         });
 
         verify(queueRepository, never()).save(any(DailyMatchQueue.class));
+        verify(matchGenerationService, never()).generateMatchesAsync(any());
     }
 }
