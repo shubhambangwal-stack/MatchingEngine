@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.item.Chunk;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -65,13 +66,17 @@ public class MatchMongoWriterTest {
         ));
 
         // Verify saveAll matches
-        verify(matchRepository, times(1)).saveAll(argThat(list ->
-            list.size() == 3 && list.containsAll(Arrays.asList(m1, m2, m3))
-        ));
+        verify(matchRepository, times(1)).saveAll(argThat(iterable -> {
+            List<Match> list = new ArrayList<>();
+            iterable.forEach(list::add);
+            return list.size() == 3 && list.containsAll(Arrays.asList(m1, m2, m3));
+        }));
 
         // Verify daily match queue entries are marked processed and saved
-        verify(queueRepository, times(1)).saveAll(argThat(list ->
-            list.size() == 2 && q1.isProcessed() && q2.isProcessed()
-        ));
+        verify(queueRepository, times(1)).saveAll(argThat(iterable -> {
+            List<DailyMatchQueue> list = new ArrayList<>();
+            iterable.forEach(list::add);
+            return list.size() == 2 && q1.isProcessed() && q2.isProcessed();
+        }));
     }
 }
