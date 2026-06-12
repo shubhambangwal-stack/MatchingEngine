@@ -68,7 +68,7 @@ public class MatchGenerationServiceTest {
                 .viewed(false)
                 .build();
 
-        when(compatibilityScoringProcessor.process(pool)).thenReturn(List.of(match));
+        when(compatibilityScoringProcessor.process(pool)).thenReturn(new com.pearl.astrology.match.batch.UserMatchResult(userId, List.of(match)));
 
         // Queue entry exists
         when(queueRepository.existsByUserIdAndQueueDate(userId, LocalDate.now())).thenReturn(true);
@@ -121,7 +121,7 @@ public class MatchGenerationServiceTest {
                 .build();
 
         when(candidateFetchProcessor.process(any(DailyMatchQueue.class))).thenReturn(pool);
-        when(compatibilityScoringProcessor.process(pool)).thenReturn(Collections.emptyList());
+        when(compatibilityScoringProcessor.process(pool)).thenReturn(new com.pearl.astrology.match.batch.UserMatchResult(userId, Collections.emptyList()));
 
         // Execute
         matchGenerationService.generateMatchesAsync(userId);
@@ -172,7 +172,7 @@ public class MatchGenerationServiceTest {
                 .viewed(false)
                 .build();
 
-        when(compatibilityScoringProcessor.process(pool)).thenReturn(List.of(match));
+        when(compatibilityScoringProcessor.process(pool)).thenReturn(new com.pearl.astrology.match.batch.UserMatchResult(userId, List.of(match)));
 
         // No queue entry exists yet
         when(queueRepository.existsByUserIdAndQueueDate(userId, LocalDate.now())).thenReturn(false);
