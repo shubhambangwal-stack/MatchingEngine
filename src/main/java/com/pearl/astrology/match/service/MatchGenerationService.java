@@ -64,8 +64,10 @@ public class MatchGenerationService {
             }
 
             // 3. Score candidates using the existing scoring processor
-            List<Match> matches = compatibilityScoringProcessor.process(pool);
-            if (matches == null || matches.isEmpty()) {
+            com.pearl.astrology.match.batch.UserMatchResult result = compatibilityScoringProcessor.process(pool);
+            List<Match> matches = (result != null && result.getMatches() != null) ? result.getMatches() : java.util.Collections.emptyList();
+            
+            if (matches.isEmpty()) {
                 log.warn("[RealTime] Scoring produced no matches for user {}. " +
                          "Daily batch job will retry.", userId);
                 return;

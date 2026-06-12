@@ -16,7 +16,7 @@ spring:
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:187.127.137.216:9092}
     consumer:
-      group-id: match-engine-group-v2
+      group-id: match-engine-group-v2-local
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer

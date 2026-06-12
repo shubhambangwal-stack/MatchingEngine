@@ -37,7 +37,7 @@ public class CompatibilityScoringProcessorTest {
                 .candidates(Collections.singletonList(candidate))
                 .build();
 
-        List<Match> matches = processor.process(pool);
+        List<Match> matches = processor.process(pool).getMatches();
         assertNotNull(matches);
         assertEquals(1, matches.size());
         
@@ -94,7 +94,7 @@ public class CompatibilityScoringProcessorTest {
                 .candidates(Collections.singletonList(candidate))
                 .build();
 
-        List<Match> matches = processor.process(pool);
+        List<Match> matches = processor.process(pool).getMatches();
         assertNotNull(matches);
         assertEquals(1, matches.size());
         
@@ -119,7 +119,7 @@ public class CompatibilityScoringProcessorTest {
                 .candidates(candidates)
                 .build();
 
-        List<Match> freeMatches = processor.process(freePool);
+        List<Match> freeMatches = processor.process(freePool).getMatches();
         assertNotNull(freeMatches);
         assertEquals(10, freeMatches.size(), "Free user should be limited to 10 matches");
 
@@ -129,7 +129,7 @@ public class CompatibilityScoringProcessorTest {
                 .candidates(candidates)
                 .build();
 
-        List<Match> premiumMatches = processor.process(premiumPool);
+        List<Match> premiumMatches = processor.process(premiumPool).getMatches();
         assertNotNull(premiumMatches);
         assertEquals(20, premiumMatches.size(), "Premium user should get all 20 matches");
     }
