@@ -67,7 +67,7 @@ public class MatchScoringJobConfig {
     @Bean
     public Step scoringStep() {
         return new StepBuilder("scoringStep", jobRepository)
-                .<DailyMatchQueue, List<Match>>chunk(chunkSize, transactionManager)
+                .<DailyMatchQueue, UserMatchResult>chunk(chunkSize, transactionManager)
                 .reader(synchronizedQueueReader())
                 .processor(compositeProcessor())
                 .writer(matchMongoWriter)
@@ -119,8 +119,8 @@ public class MatchScoringJobConfig {
     }
 
     @Bean
-    public CompositeItemProcessor<DailyMatchQueue, List<Match>> compositeProcessor() {
-        CompositeItemProcessor<DailyMatchQueue, List<Match>> processor = new CompositeItemProcessor<>();
+    public CompositeItemProcessor<DailyMatchQueue, UserMatchResult> compositeProcessor() {
+        CompositeItemProcessor<DailyMatchQueue, UserMatchResult> processor = new CompositeItemProcessor<>();
         processor.setDelegates(List.of(
                 candidateFetchProcessor,
                 compatibilityScoringProcessor

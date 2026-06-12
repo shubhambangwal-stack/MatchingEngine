@@ -37,4 +37,17 @@ public interface UserProfileRepository extends MongoRepository<UserProfile, Stri
             String excludeUserId,
             org.springframework.data.domain.Pageable pageable
     );
+
+    @Query("{ " +
+           "'isActive': true, " +
+           "'isBlocked': false, " +
+           "'profileCompleted': true, " +
+           "'gender': ?0, " +
+           "'_id': { $ne: ?1 } " +
+           "}")
+    List<UserProfile> findDefaultCandidates(
+            String gender,
+            String excludeUserId,
+            org.springframework.data.domain.Pageable pageable
+    );
 }

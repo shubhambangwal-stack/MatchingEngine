@@ -78,8 +78,8 @@ CandidateFetchProcessor implements ItemProcessor<DailyMatchQueue, UserCandidateP
                 candidates.size(), item.getUserId(), targetGender, religions, motherTongues);
 
         if (candidates.isEmpty()) {
-            log.warn("No candidates found for user {}", item.getUserId());
-            return null;
+            log.warn("No candidates found for user {}, fetching default matches", item.getUserId());
+            candidates = userProfileRepository.findDefaultCandidates(targetGender, item.getUserId(), PageRequest.of(0, maxCandidates));
         }
 
         return UserCandidatePool.builder()

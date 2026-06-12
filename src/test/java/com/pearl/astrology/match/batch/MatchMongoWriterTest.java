@@ -48,10 +48,10 @@ public class MatchMongoWriterTest {
         Match m2 = Match.builder().userId("user1").candidateId("cand2").score(72.0).build();
         Match m3 = Match.builder().userId("user2").candidateId("cand3").score(90.0).build();
 
-        List<Match> matchesUser1 = Arrays.asList(m1, m2);
-        List<Match> matchesUser2 = Collections.singletonList(m3);
+        UserMatchResult result1 = UserMatchResult.builder().userId("user1").matches(Arrays.asList(m1, m2)).build();
+        UserMatchResult result2 = UserMatchResult.builder().userId("user2").matches(Collections.singletonList(m3)).build();
 
-        Chunk<List<Match>> chunk = new Chunk<>(Arrays.asList(matchesUser1, matchesUser2));
+        Chunk<UserMatchResult> chunk = new Chunk<>(Arrays.asList(result1, result2));
 
         DailyMatchQueue q1 = DailyMatchQueue.builder().userId("user1").processed(false).build();
         DailyMatchQueue q2 = DailyMatchQueue.builder().userId("user2").processed(false).build();

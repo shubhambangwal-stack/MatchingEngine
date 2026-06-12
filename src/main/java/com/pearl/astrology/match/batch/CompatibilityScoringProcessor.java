@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
  */
 @Component
 @Slf4j
-public class CompatibilityScoringProcessor implements ItemProcessor<UserCandidatePool, List<Match>> {
+public class CompatibilityScoringProcessor implements ItemProcessor<UserCandidatePool, UserMatchResult> {
 
     @Override
-    public List<Match> process(UserCandidatePool pool) {
+    public UserMatchResult process(UserCandidatePool pool) {
         log.info("Scoring {} candidates for user {}", pool.getCandidates().size(), pool.getUserId());
 
         UserProfile source = pool.getSourceProfile();
@@ -45,7 +45,10 @@ public class CompatibilityScoringProcessor implements ItemProcessor<UserCandidat
                 .limit(limit)
                 .collect(Collectors.toList());
 
-        return matches;
+        return UserMatchResult.builder()
+                .userId(source.getId())
+                .matches(matches)
+                .build();
     }
 
     private Match scoreCandidate(UserProfile source, UserProfile candidate) {

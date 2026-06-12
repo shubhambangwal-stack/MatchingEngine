@@ -4,7 +4,7 @@ spring:
     
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:mongodb+srv://shsharma0802_db_user:doiv@cluster0.lxltpdi.mongodb.net/void?appName=Cluster}
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb+srv://abhisheks:ijgha3sbMNK0Hfsu@cluster0.ul6vz.mongodb.net/matriomony?retryWrites=true&w=majority&appName=Cluster0}
       auto-index-creation: ${SPRING_DATA_MONGODB_AUTO_INDEX_CREATION:false}
 
   datasource:

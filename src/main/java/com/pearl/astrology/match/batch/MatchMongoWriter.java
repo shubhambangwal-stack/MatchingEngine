@@ -19,26 +19,23 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class MatchMongoWriter implements ItemWriter<List<Match>> {
+public class MatchMongoWriter implements ItemWriter<UserMatchResult> {
 
     private final MatchRepository matchRepository;
     private final DailyMatchQueueRepository queueRepository;
 
     @Override
-    public void write(Chunk<? extends List<Match>> chunk) {
+    public void write(Chunk<? extends UserMatchResult> chunk) {
         if (chunk == null || chunk.isEmpty()) return;
 
-        // 1. Gather all non-empty match lists and user IDs in this chunk
-        List<List<Match>> nonListMatches = chunk.getItems().stream()
-                .filter(matches -> matches != null && !matches.isEmpty())
-                .collect(Collectors.toList());
+        List<? extends UserMatchResult> results = chunk.getItems();
 
-        if (nonListMatches.isEmpty()) return;
-
-        List<String> userIds = nonListMatches.stream()
-                .map(matches -> matches.get(0).getUserId())
+        List<String> userIds = results.stream()
+                .map(UserMatchResult::getUserId)
                 .distinct()
                 .collect(Collectors.toList());
+
+        if (userIds.isEmpty()) return;
 
         log.info("Processing match updates in bulk for {} users", userIds.size());
 
@@ -46,10 +43,14 @@ public class MatchMongoWriter implements ItemWriter<List<Match>> {
         matchRepository.deleteByUserIdIn(userIds);
 
         // 3. Bulk Save all matches for the chunk
-        List<Match> allMatches = nonListMatches.stream()
-                .flatMap(List::stream)
+        List<Match> allMatches = results.stream()
+                .filter(res -> res.getMatches() != null)
+                .flatMap(res -> res.getMatches().stream())
                 .collect(Collectors.toList());
-        matchRepository.saveAll(allMatches);
+        
+        if (!allMatches.isEmpty()) {
+            matchRepository.saveAll(allMatches);
+        }
 
         // 4. Bulk Update DailyMatchQueue statuses
         List<DailyMatchQueue> queueEntries = queueRepository.findByUserIdInAndQueueDateAndProcessedFalse(
