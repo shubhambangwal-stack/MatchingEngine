@@ -45,6 +45,17 @@ public class CompatibilityScoringProcessor implements ItemProcessor<UserCandidat
                 .limit(limit)
                 .collect(Collectors.toList());
 
+        // Fallback: If no matches met the threshold (e.g., due to an incomplete profile),
+        // just return the highest scoring candidates up to the limit.
+        if (matches.isEmpty() && !pool.getCandidates().isEmpty()) {
+            log.warn("No candidates met the minScore of {} for user {}. Falling back to top {} candidates.", minScore, source.getId(), limit);
+            matches = pool.getCandidates().stream()
+                    .map(candidate -> scoreCandidate(source, candidate))
+                    .sorted(Comparator.comparingDouble(Match::getScore).reversed())
+                    .limit(limit)
+                    .collect(Collectors.toList());
+        }
+
         return UserMatchResult.builder()
                 .userId(source.getId())
                 .matches(matches)
