@@ -49,19 +49,33 @@ public class CandidateFetchProcessorTest {
     }
 
     @Test
-    public void testProcessReturnsNullIfNoPartnerPreference() {
+    public void testProcessFetchesDefaultCandidatesIfNoPartnerPreference() {
         DailyMatchQueue queueItem = new DailyMatchQueue();
         queueItem.setUserId("user_id");
 
         UserProfile profile = new UserProfile();
         profile.setId("user_id");
+        profile.setGender("Male");
         profile.setPartnerPreference(null);
 
         when(userProfileRepository.findById("user_id")).thenReturn(Optional.of(profile));
 
+        UserProfile candidate1 = new UserProfile();
+        candidate1.setId("candidate_1");
+
+        when(userProfileRepository.findDefaultCandidates(
+                eq("Female"),
+                eq("user_id"),
+                eq(PageRequest.of(0, 2000))
+        )).thenReturn(Collections.singletonList(candidate1));
+
         UserCandidatePool pool = processor.process(queueItem);
 
-        assertNull(pool);
+        assertNotNull(pool);
+        assertEquals("user_id", pool.getUserId());
+        assertEquals(profile, pool.getSourceProfile());
+        assertEquals(1, pool.getCandidates().size());
+        assertEquals("candidate_1", pool.getCandidates().get(0).getId());
     }
 
     @Test
